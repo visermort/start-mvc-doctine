@@ -1,0 +1,49 @@
+{% extends layout~'.twig' %}
+
+{% block content %}
+
+    <div class="row ajax-request">
+        <div class="col-md-12">
+
+            {{ paginator.info()|raw }}
+            <div class="panel-body datagrid">
+
+                {% set permission = user_has('admin') %}
+
+                <table id="tt" class="easyui-datagrid" style="width:100%;height:auto;">
+                    <thead>
+                    <tr class="head">
+                        <th class="table-sorting" nowrap>{{ sort_by('t.id', 'ID')|raw }}</th>
+                        <th class="table-sorting" nowrap>{{ sort_by('u.email', 'Email')|raw }}</th>
+                        <th class="table-sorting" nowrap>{{ sort_by('u.firstName', 'Name')|raw }}</th>
+                        <th class="table-sorting" nowrap>{{ sort_by('t.status', 'Status')|raw }}</th>
+                        {% if permission %}
+                            <th class="table-sorting" nowrap></th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in paginator.data() %}
+                        <tr>
+                            <td>{{ task.id }}</td>
+                            <td>{{ task.user.email }}</td>
+                            <td>{{ task.user.firstName~' '~task.user.lastName }}</td>
+                            <td>{{ status(task.status) }}</td>
+                            {% if permission %}
+                                <td><a href="/task/update/{{ task.id }}"><i class="fa fa-pencil-square-o" aria-hidden="true" ></i></a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+            {% include 'parts/pagination.twig' %}
+        </div>
+    </div>
+{% endblock %}
+
+
+
+
