@@ -9,10 +9,10 @@
                 <input type="hidden" name="csrf" value="{{ csrf() }}">
                 <div class="control-group form-group">
                     <div class="controls">
-                        <label for="name">Name:</label>
-                        <input type="name" class="form-control" id="name" name="name" placeholder="Enter your name"  required data-validation-required-message="Please enter your name."
-                               value="{{ old.name ? old.name : '' }}">
-                        <p class="help-block">{{ errors.name ? errors.name : '' }}</p>
+                        <label for="email">Email:</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"  required data-validation-required-message="Please enter your email."
+                               value="{{ old.email ? old.email : '' }}">
+                        <p class="help-block">{{ errors.email ? errors.email : '' }}</p>
                     </div>
                 </div>
                 <div class="control-group form-group">

@@ -2,7 +2,7 @@
 
 return [
     ['GET',           '/', 'task.index'],// controller.action [.permission]
-    ['GET',           '/test', 'site.test'],
+   // ['GET',           '/test', 'site.test'],
     ['GET',           '/task/result', 'task.result'],
     [['GET', 'POST'], '/login', 'account.login'],
 
@@ -13,6 +13,6 @@ return [
     [['GET', 'POST'], '/task/create', 'task.create'],
     [['GET', 'POST'], '/task/update/{id:\d+}', 'task.update.admin'], //.admin  - need permission admin
 
-   // ['GET', '/createadmin', 'account.createadmin'], //for start create admin user
+ //   ['GET', '/createadmin', 'account.createadmin'], //for start create admin user
 
 ];

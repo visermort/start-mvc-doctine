@@ -83,7 +83,7 @@ class Session extends Component
      */
     public function checkCsrf($key)
     {
-        $out = ($key == $this->get('csrf') && time() - $this->get('csrf_time') < 60 * 60 * 10) ? true : false;//10 min
+        $out = ($key == $this->get('csrf') && (time() - $this->get('csrf_time')) < (60 * 10)) ? true : false;//10 min
         $this->deleteKey('csrf');
         $this->deleteKey('csrf_time');
         return $out;

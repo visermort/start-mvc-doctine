@@ -14,7 +14,6 @@ class Tasks extends Entity
     public static $createRules = [
         'required'=> [['first_name', 'email', 'text', 'csrf']],
         'email' => [['email']],
-        'regex' => [['email', '/^(?!(admin@)).*$/']]//to protect email like admin@someemail.com
     ];
     public static $updateRules = [
         'required'=> [['text', 'csrf']],

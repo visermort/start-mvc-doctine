@@ -4,6 +4,7 @@ namespace app\Components;
 
 use app\App;
 use app\Component;
+use app\entities\Users;
 
 /**
  * Class Auth
@@ -12,67 +13,26 @@ use app\Component;
 class Auth extends Component
 {
     /**
-     * Db init
+     * check login
      */
     public static function init()
     {
-//        try {
-//            App::getComponent('db');
-//            $user = Sentinel::check();
-//            if ($user) {
-//                App::setUser($user);
-//            }
-//        } catch (\Exception $e) {
-//            if (App::getConfig('app.debug')) {
-//                echo $e->getMessage();
-//            }
-//        }
+        try {
+            $passwordHash = App::getComponent('session')->get(App::getConfig('app.session_user_key'));
+            if ($passwordHash) {
+                $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
+                $user = $usersRepository->findOneBy(['password' => $passwordHash]);
+                if ($user) {
+                    App::setUser($user);
+                }
+            }
+        } catch (\Exception $e) {
+            if (App::getConfig('app.debug')) {
+                echo $e->getMessage();
+            }
+        }
         return parent::init();
     }
-
-    /**
-     * activatioin key
-     * @param $userId
-     * @return mixed
-//     */
-//    public function getActivation($email)
-//    {
-//        $user = Sentinel::findByCredentials(['email' => $email]);
-//        $activationRepository = Sentinel::getActivationRepository();
-//        $activation = $activationRepository->create($user);
-//        return $activation;
-//    }
-//
-//    /**
-//     * complete activation
-//     * @param $email
-//     * @param $activationCode
-//     * @return mixed
-//     */
-//    public function activate($email, $activationCode)
-//    {
-//        $user = Sentinel::findByCredentials(['email' => $email]);
-//        $activationRepository = Sentinel::getActivationRepository();
-//        if ($user) {
-//            $activation = $activationRepository->complete($user, $activationCode);
-//            return $activation;
-//        }
-//    }
-
-    /**
-     * check activation
-     * @param $email
-     * @return mixed
-     */
-//    public function checkActivation($email)
-//    {
-//        $user = Sentinel::findByCredentials(['email' => $email]);
-//        $activationRepository = Sentinel::getActivationRepository();
-//        if ($user) {
-//            $activation = $activationRepository->exists($user);
-//            return $activation;
-//        }
-//    }
 
     /**
      * @param $credentials
@@ -80,40 +40,39 @@ class Auth extends Component
      */
     public function register($credentials)
     {
-//        $user = Sentinel::authenticate(['email' => $credentials['email']]);
-//        if ($user) {
-//            return [
-//                'result' => 'false',
-//                'user' => $user,
-//                'message' => 'User with this email allredy exists',
-//            ];
-//        }
-//        $user =  Sentinel::register($credentials);
-//        return [
-//            'result' => $user != false,
-//            'user' => $user,
-//            'message' => '',
-//        ];
+        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
+        $user = $usersRepository->findOneBy(['email' => $credentials['email']]);
+        if ($user) {
+            //email allredy in use
+            return false;
+        }
+        $credentials['password'] = password_hash($credentials['password'], PASSWORD_DEFAULT);
+        $user = Users::create('app\entities\Users', $credentials);
+        return $user;
     }
 
     /**
-     * authenticate
      * @param $credentials
      * @return mixed
      */
     public function authenticate($credentials)
     {
-        //return Sentinel::authenticate($credentials);
+        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
+        $user = $usersRepository->findOneBy(['email' => $credentials['email']]);
+        if ($user && password_verify($credentials['password'], $user->getPassword())) {
+            return $user;
+        }
     }
 
     /**
-     * login and remember
      * @param $user
      * @return mixed
      */
     public function login($user)
     {
-        //return Sentinel::loginAndRemember($user);
+        App::setUser($user);
+        App::getComponent('session')->set(App::getConfig('app.session_user_key'), $user->getPassword());
+        return $user;
     }
 
     /**
@@ -121,7 +80,8 @@ class Auth extends Component
      */
     public function logout()
     {
-        //return Sentinel::logout();
+        App::setUser(null);
+        App::getComponent('session')->destroy();
     }
 
     /**
@@ -129,20 +89,21 @@ class Auth extends Component
      * @param $email
      * @param $role
      * @param bool $value
-     * @return array
+     * @return bool|array
      */
-    public function setUserPermision($email, $permission, $value = true)
+    public function setUserPermision($email, $permission)
     {
-//        $user = Sentinel::findByCredentials(['email' => $email]);
-//        $permissions = [];
-//        foreach ($user->permissions as $key => $val) {
-//            $permissions[$key] = $val;
-//        }
-//        $permissions[$permission] = $value ? true : false;
-//        $user->permissions = $permissions;
-//        if ($user->save()) {
-//            return $user->permissions;
-//        }
+        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
+        $user = $usersRepository->findOneBy(['email' => $email]);
+        if (!$user) {
+            return false;
+        }
+        $permissions = json_decode($user->getPermissions(), true);
+        $permissions = empty($permissions) ? [] : $permissions;
+        $permissions = array_merge($permissions, [$permission]);
+        if ($user->update(['permissions' => json_encode($permissions)])) {
+            return $permissions;
+        }
     }
 
     /** revoke all permissions
@@ -151,11 +112,9 @@ class Auth extends Component
      */
     public function revokeUserPermisions($email)
     {
-//        $user = Sentinel::findByCredentials(['email' => $email]);
-//        $user->permissions = [];
-//        if ($user->save()) {
-//            return $user->permissions;
-//        }
+        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
+        $user = $usersRepository->findOneBy(['email' => $email]);
+        $user->update(['permissions' => null]);
     }
 
     /**
@@ -166,8 +125,13 @@ class Auth extends Component
      */
     public function hasAccessTo($email, $permission)
     {
-//        $user = Sentinel::findByCredentials(['email' => $email]);
-//        return $user->hasAccess($permission);
+        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
+        $user = $usersRepository->findOneBy(['email' => $email]);
+        if (!$user) {
+            return false;
+        }
+        $permissions = json_decode($user->getPermissions(), true);
+        return !empty($permissions) && in_array($permission, $permissions);
     }
 
 }

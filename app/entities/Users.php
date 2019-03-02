@@ -10,7 +10,7 @@ class Users  extends Entity
 {
     public static $rulesLogin = [
         'required' => [
-            ['name', 'password', 'csrf']
+            ['email', 'password', 'csrf']
         ],
     ];
 

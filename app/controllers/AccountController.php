@@ -2,10 +2,9 @@
 
 namespace app\controllers;
 
-use app\components\Paginate;
 use app\Controller;
 use app\App;
-use app\models\User;
+use app\entities\Users;
 
 /**
  * Class SiteController
@@ -54,28 +53,13 @@ class AccountController extends Controller
             $postData = App::getRequest('post');
             $validator = App::getComponent('validator');
             $postData = $validator->clean($postData);
-            $validateResult = $validator->validate($postData, User::$loginRules);
+            $validateResult = $validator->validate($postData, Users::$rulesLogin);
             if ($validateResult === true) {
-                //try to find user by part of email
-                $user = User::where('email', 'like', trim($postData['name']).'@%')->first();
+                $auth = App::getComponent('auth');
+                $user = $auth->authenticate($postData);
                 if ($user) {
-                    //try to login
-                    $credentials = [
-                        'email' => $user->email,
-                        'password' => $postData['password'],
-                    ];
-                    $auth = App::getComponent('auth');
-                    $authUser = $auth->authenticate($credentials);
-                    if ($authUser) {
-                        //$checkUser = $auth->hasAccessTo($authUser['email'], 'admin');
-                        //if ($checkUser) {
-                            //checked  - login
-                        $login = $auth->login($authUser);
-                        if ($login) {
-                            $this->redirect(App::getConfig('app.account_start_page'));
-                        }
-                        //}
-                    }
+                    $auth->login($user);
+                    $this->redirect(App::getConfig('app.account_start_page'));
                 }
                 $validateResult = [
                     'password' => 'You user name or password are invalid',
@@ -102,14 +86,9 @@ class AccountController extends Controller
             'last_name' => 'Admin',
         ]);
         d($user);
-        $registration = $auth->getActivation('account@emial.email');
-        d($registration);
-        $activation = $auth->activate('account@emial.email', $registration['code']);//bool
-        d($activation);
-        $activationCheck = $auth->checkActivation('account@emial.email'); //bool true if complete object if not completed
-        d($activationCheck);
         $permissions =  $auth->setUserPermision('account@emial.email', 'admin');
         d($permissions);
+        d($auth->hasAccessTo('account@emial.email', 'admin'));
     }
 
 
