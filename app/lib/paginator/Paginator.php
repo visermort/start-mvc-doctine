@@ -1,9 +1,10 @@
 <?php
 
-namespace app\lib;
+namespace app\lib\paginator;
 
 use app\App;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
+use app\lib\paginator\PaginateButton;
 
 /**
  * Class Paginator
@@ -20,6 +21,8 @@ class Paginator
     protected $queryResult;
     protected $queryBuilder;
     protected $recordsTo;
+    protected $itemClasses = [];
+    protected $linkClasses = [];
 
     /**
      * @param $query
@@ -33,6 +36,8 @@ class Paginator
         $this->page = isset($params['page']) ? $params['page'] : $this->page;
         $this->page = $this->page == 0 ? 1 : $this->page;
         $this->limit = isset($params['limit']) ? $params['limit'] : App::getConfig('grids.limit');
+        $this->itemClasses = isset($params['item_classes']) ? $params['item_classes'] : [];
+        $this->linkClasses = isset($params['link_classes']) ? $params['link_classes'] : [];
 
         if ($this->single) {
             $this->makeSinglePage();
@@ -84,8 +89,6 @@ class Paginator
         if ($this->single || $this->pageCount == 1) {
             return '';
         }
-        $path = App::getRequest('path');
-        $params = App::getRequest('get');
         $buttonCount = App::getConfig('grids.paginage_buttons');
         $start = $this->page - round(floor($buttonCount/2));
         $buttonStart = $start < 1 ? 1 : $start;
@@ -93,38 +96,28 @@ class Paginator
             $this->pageCount - $buttonCount + 1 : $buttonStart;
 
         //make pagination html
+        $paginateButtons = new PaginateButtons([
+            'url' => App::getRequest('path'),
+            'current_page' => $this->page,
+            'link_classes' => $this->linkClasses,
+            'item_classes' => $this->itemClasses,
+            'get_params' => App::getRequest('get'),
+            ]);
+
         $out = '<ul class="pagination">';
-
-        $params['page'] = null;
-        $paramsQuery = http_build_query($params);
-        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-        $out .= '<li '.($this->page == 1 ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&laquo;</a></li>';
-        $params['page'] = $this->page == 2 ? null : $this->page - 1;
-        $paramsQuery = http_build_query($params);
-        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-        $out .= '<li '.($this->page == 1 ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&lsaquo;</a></li>';
-
+        $out .= $paginateButtons->getButton(1, '&laquo;');
+        $out .= $paginateButtons->getButton($this->page > 2  ? $this->page - 1 : 1, '&lsaquo;');
         for ($i = $buttonStart; $i <= $this->pageCount; $i++) {
-            $active = $i == $this->page;
-            $params['page'] = $active || $i==1 ? null : $i;
-            $paramsQuery = http_build_query($params);
-            $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-            $out .= $active ? '<li class="active"><span>'.$i.'</span></li>' :
-                '<li><a class="ajax-button" href="'.$href.'">'.$i.'</a></li>';
+            $out .= $paginateButtons->getButton($i, $i);
             if ($i == $buttonStart + $buttonCount - 1) {
                 break;
             }
         }
-
-        $params['page'] = $this->page + 1;
-        $paramsQuery = http_build_query($params);
-        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-        $out .= '<li '.($this->page == $this->pageCount ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&rsaquo;</a></li>';
-        $params['page'] = $this->pageCount;
-        $paramsQuery = http_build_query($params);
-        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-        $out .= '<li '.($this->page == $this->pageCount ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&raquo;</a></li>';
-
+        $out .= $paginateButtons->getButton(
+            $this->page + 1 > $this->pageCount ? $this->pageCount : $this->page + 1,
+            '&rsaquo;'
+        );
+        $out .= $paginateButtons->getButton($this->pageCount, '&raquo;');
         $out .= '</ul>';
         return $out;
     }

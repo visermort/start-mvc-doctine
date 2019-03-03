@@ -5,7 +5,7 @@ namespace app\controllers;
 use app\Controller;
 use app\App;
 use app\entities\Tasks;
-use app\lib\Paginator;
+use app\lib\paginator\Paginator;
 
 
 /**
@@ -61,7 +61,7 @@ class TaskController extends Controller
             if ($sortBy) {
                 $query->orderBy($sortBy, strtoupper($direction));
             }
-            $paginator = new Paginator($query, ['page' => $page]);
+            $paginator = new Paginator($query, ['page' => $page, 'link_classes' => ['ajax-button']]);
 
             $this->ajaxResponse = App::getRequest('isAjax');
 
