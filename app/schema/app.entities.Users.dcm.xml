@@ -25,6 +25,11 @@
         <option name="fixed"/>
       </options>
     </field>
+    <field name="sessionKey" type="string" column="session_key" length="255" nullable="true">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
     <field name="permissions" type="text" column="permissions" length="65535" nullable="true">
       <options>
         <option name="fixed"/>

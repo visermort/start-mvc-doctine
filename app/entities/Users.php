@@ -45,6 +45,11 @@ class Users  extends Entity
     /**
      * @var string
      */
+    private $sessionKey;
+
+    /**
+     * @var string
+     */
     private $permissions;
 
     /**
@@ -114,6 +119,17 @@ class Users  extends Entity
         $this->password = $password;
 
         return $this;
+    }
+
+    public function setSessionKey($sessionKey)
+    {
+        $this->sessionKey = $sessionKey;
+        return $this;
+    }
+
+    public function getSessionKey()
+    {
+        return $this->sessionKey;
     }
 
     /**

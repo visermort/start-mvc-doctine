@@ -18,10 +18,10 @@ class Auth extends Component
     public static function init()
     {
         try {
-            $passwordHash = App::getComponent('session')->get(App::getConfig('app.session_user_key'));
-            if ($passwordHash) {
+            $sessionKey = App::getComponent('session')->get(App::getConfig('app.session_user_key'));
+            if ($sessionKey) {
                 $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
-                $user = $usersRepository->findOneBy(['password' => $passwordHash]);
+                $user = $usersRepository->findOneBy(['sessionKey' => $sessionKey]);
                 if ($user) {
                     App::setUser($user);
                 }
@@ -71,7 +71,9 @@ class Auth extends Component
     public function login($user)
     {
         App::setUser($user);
-        App::getComponent('session')->set(App::getConfig('app.session_user_key'), $user->getPassword());
+        $sessionKey = bin2hex(random_bytes(16));
+        $user->update(['session_key' => $sessionKey, 'last_login' => new \DateTime()]);
+        App::getComponent('session')->set(App::getConfig('app.session_user_key'), $sessionKey);
         return $user;
     }
 
@@ -80,7 +82,12 @@ class Auth extends Component
      */
     public function logout()
     {
-        App::setUser(null);
+        $user = App::getUser();
+        if ($user) {
+            $user->update(['session_key' => null]);
+            App::setUser(null);
+        }
+
         App::getComponent('session')->destroy();
     }
 
