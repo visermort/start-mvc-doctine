@@ -7,6 +7,11 @@
     <lifecycle-callbacks>
       <lifecycle-callback type="preUpdate" method="doPreUpdate"/>
     </lifecycle-callbacks>
+    <entity-listeners>
+      <entity-listener class="app\lib\listeners\UserListener">
+        <lifecycle-callback type="postPersist" method="postPersistHandler"/>
+      </entity-listener>
+    </entity-listeners>
     <id name="id" type="integer" column="id">
       <generator strategy="IDENTITY"/>
     </id>
