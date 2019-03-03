@@ -2,7 +2,7 @@
 
 return [
     ['GET',           '/', 'task.index'],// controller.action [.permission]
-   // ['GET',           '/test', 'site.test'],
+  //  ['GET',           '/test', 'site.test'],
     ['GET',           '/task/result', 'task.result'],
     [['GET', 'POST'], '/login', 'account.login'],
 

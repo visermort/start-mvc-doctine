@@ -31,8 +31,8 @@ class Paginator
         $this->queryBuilder = $queryBuilder;
         $this->single = isset($params['single']) ? $params['single'] : false;
         $this->page = isset($params['page']) ? $params['page'] : $this->page;
-        $this->limit = isset($params['limit']) ? $params['limit'] : App::getConfig('grids.limit');
         $this->page = $this->page == 0 ? 1 : $this->page;
+        $this->limit = isset($params['limit']) ? $params['limit'] : App::getConfig('grids.limit');
 
         if ($this->single) {
             $this->makeSinglePage();
