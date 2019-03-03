@@ -126,7 +126,7 @@ class App
                         //check permission for $handler[2]
                         $auth = self::getComponent('auth');
                         $user = self::getUser();
-                        $checkUser = $user ? $auth->hasAccessTo($user->getEmail(), $handler[2]) : false;
+                        $checkUser = $user ? $user->hasAccessTo($handler[2]) : false;
                         if (!$checkUser) {
                             //user does not exists or user does not have a permission
                             $this->error405();

@@ -22,6 +22,17 @@ class Users  extends Entity
     }
 
     /**
+     * check permission
+     * @param $permission
+     * @return mixed
+     */
+    public function hasAccessTo($permission)
+    {
+        $permissions = json_decode($this->permissions, true);
+        return !empty($permissions) && in_array($permission, $permissions);
+    }
+
+    /**
      * @var string
      */
     private $email;

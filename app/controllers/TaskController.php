@@ -40,6 +40,13 @@ class TaskController extends Controller
             $page = App::getRequest('get', 'page');
             $direction = App::getRequest('get', 'order');
 
+            if (!$sortBy) {
+                $sortBy = 't.id';
+                $direction = 'DESC';
+            } else {
+                $this->breadcrumbs[] = ['title' => 'Sort', 'url' => '/?sort=' . $sortBy . '&order=' . $direction];
+            }
+
             if ($page > 1) {
                 $this->breadcrumbs[] = ['title' => 'Page ' . $page];
             }

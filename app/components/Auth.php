@@ -91,7 +91,7 @@ class Auth extends Component
      * @param bool $value
      * @return bool|array
      */
-    public function setUserPermision($email, $permission)
+    public function setUserPermision($email, $newPermissions = [])
     {
         $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
         $user = $usersRepository->findOneBy(['email' => $email]);
@@ -100,7 +100,7 @@ class Auth extends Component
         }
         $permissions = json_decode($user->getPermissions(), true);
         $permissions = empty($permissions) ? [] : $permissions;
-        $permissions = array_merge($permissions, [$permission]);
+        $permissions = array_merge($permissions, $newPermissions);
         if ($user->update(['permissions' => json_encode($permissions)])) {
             return $permissions;
         }
@@ -115,23 +115,6 @@ class Auth extends Component
         $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
         $user = $usersRepository->findOneBy(['email' => $email]);
         $user->update(['permissions' => null]);
-    }
-
-    /**
-     * check permission
-     * @param $email
-     * @param $permission
-     * @return mixed
-     */
-    public function hasAccessTo($email, $permission)
-    {
-        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
-        $user = $usersRepository->findOneBy(['email' => $email]);
-        if (!$user) {
-            return false;
-        }
-        $permissions = json_decode($user->getPermissions(), true);
-        return !empty($permissions) && in_array($permission, $permissions);
     }
 
 }

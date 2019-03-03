@@ -18,6 +18,8 @@ class Paginator
     protected $single = false;//one page
     protected $count = 0;
     protected $queryResult;
+    protected $queryBuilder;
+    protected $recordsTo;
 
     /**
      * @param $query
@@ -26,24 +28,51 @@ class Paginator
     public function __construct($queryBuilder, $params = [])
     {
         $this->params = $params;
-        $this->page = isset($params['page']) ? $params['page'] : $this->page;
+        $this->queryBuilder = $queryBuilder;
         $this->single = isset($params['single']) ? $params['single'] : false;
+        $this->page = isset($params['page']) ? $params['page'] : $this->page;
         $this->limit = isset($params['limit']) ? $params['limit'] : App::getConfig('grids.limit');
         $this->page = $this->page == 0 ? 1 : $this->page;
-        $this->offset =  $this->single ? 0 : $this->limit * ($this->page - 1);
-        $query = $queryBuilder->getQuery();
-        $query = $this->single ? $query : $query->setFirstResult($this->offset)->setMaxResults($this->limit);
+
+        if ($this->single) {
+            $this->makeSinglePage();
+        } else {
+            $this->makeMultiPage();
+        }
+    }
+
+    protected function makeSinglePage()
+    {
+        $this->offset = 0;
+        $query = $this->queryBuilder->getQuery();
 
         $paginator = new DoctrinePaginator($query);
         $this->count = $paginator->count();
         $this->queryResult = $paginator;
-        $this->pageCount = $this->count && $this->limit ? ceil($this->count / $this->limit) : 0;
-        $this->pageCount = $this->single ? 1 : $this->pageCount;
+        $this->pageCount = 1;
+        $this->recordsTo = $this->count;
 
         if ($this->page > $this->pageCount) {
             App::getController()->actionNotfound();
         }
     }
+
+    protected function makeMultiPage()
+    {
+        $this->offset =  $this->limit * ($this->page - 1);
+        $query = $this->queryBuilder->setFirstResult($this->offset)->setMaxResults($this->limit);
+
+        $paginator = new DoctrinePaginator($query);
+        $this->count = $paginator->count();
+        $this->queryResult = $paginator;
+        $this->pageCount = $this->count && $this->limit ? ceil($this->count / $this->limit) : 0;
+        $this->recordsTo = $this->offset + $this->limit < $this->count ? $this->offset + $this->limit : $this->count;
+
+        if ($this->page > $this->pageCount) {
+            App::getController()->actionNotfound();
+        }
+    }
+
 
     public function data()
     {
@@ -66,18 +95,15 @@ class Paginator
         //make pagination html
         $out = '<ul class="pagination">';
 
-        if ($this->page > 1) {
-            $params['page'] = null;
-            $paramsQuery = http_build_query($params);
-            $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-            $out .= '<li><a class="ajax-button" href="'.$href.'">&laquo;</a></li>';
-        }
-        if ($this->page > 1) {
-            $params['page'] = $this->page - 1;
-            $paramsQuery = http_build_query($params);
-            $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-            $out .= '<li><a class="ajax-button" href="'.$href.'">&lsaquo;</a></li>';
-        }
+        $params['page'] = null;
+        $paramsQuery = http_build_query($params);
+        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
+        $out .= '<li '.($this->page == 1 ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&laquo;</a></li>';
+        $params['page'] = $this->page == 2 ? null : $this->page - 1;
+        $paramsQuery = http_build_query($params);
+        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
+        $out .= '<li '.($this->page == 1 ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&lsaquo;</a></li>';
+
         for ($i = $buttonStart; $i <= $this->pageCount; $i++) {
             $active = $i == $this->page;
             $params['page'] = $active || $i==1 ? null : $i;
@@ -89,18 +115,15 @@ class Paginator
                 break;
             }
         }
-        if ($this->page < $this->pageCount) {
-            $params['page'] = $this->page + 1;
-            $paramsQuery = http_build_query($params);
-            $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-            $out .= '<li><a class="ajax-button" href="'.$href.'">&rsaquo;</a></li>';
-        }
-        if ($this->page < $this->pageCount) {
-            $params['page'] = $this->pageCount;
-            $paramsQuery = http_build_query($params);
-            $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
-            $out .= '<li><a class="ajax-button" href="'.$href.'">&raquo;</a></li>';
-        }
+
+        $params['page'] = $this->page + 1;
+        $paramsQuery = http_build_query($params);
+        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
+        $out .= '<li '.($this->page == $this->pageCount ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&rsaquo;</a></li>';
+        $params['page'] = $this->pageCount;
+        $paramsQuery = http_build_query($params);
+        $href = $path . ($paramsQuery ? '?' . $paramsQuery : '');
+        $out .= '<li '.($this->page == $this->pageCount ? 'class="active"' : '').'><a class="ajax-button" href="'.$href.'">&raquo;</a></li>';
 
         $out .= '</ul>';
         return $out;
@@ -109,11 +132,6 @@ class Paginator
     public function info()
     {
         $from = $this->offset + 1;
-        if ($this->single) {
-            $to = $this->count;
-        } else {
-            $to = $this->offset + $this->limit < $this->count ? $this->offset + $this->limit : $this->count;
-        }
-        return 'Items ' . $from . ' - ' . $to . ' total '. $this->count;
+        return 'Items ' . $from . ' - ' . $this->recordsTo . ' total '. $this->count;
     }
 }

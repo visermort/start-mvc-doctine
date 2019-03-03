@@ -30,8 +30,7 @@ return [
     },
     'user_has' => function ($permission) {
         $user =  App::getUser();
-        $auth = App::getComponent('auth');
-        return $user && $auth->hasAccessTo($user->getEmail(), $permission) ? 1 : 0;
+        return $user && $user->hasAccessTo($permission) ? 1 : 0;
     },
     'status' => function ($status) {
         return $status ? 'Completed' : 'In process';
