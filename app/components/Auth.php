@@ -93,15 +93,13 @@ class Auth extends Component
 
     /**
      * set permission
-     * @param $email
+     * @param $user
      * @param $role
      * @param bool $value
      * @return bool|array
      */
-    public function setUserPermision($email, $newPermissions = [])
+    public function setUserPermision($user, $newPermissions = [])
     {
-        $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
-        $user = $usersRepository->findOneBy(['email' => $email]);
         if (!$user) {
             return false;
         }
