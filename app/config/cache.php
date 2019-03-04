@@ -1,10 +1,12 @@
 <?php
 
 use app\App;
+use Desarrolla2\Cache\Adapter\Apcu as ApcuCache;
 
 //$cache = 'file';
+$cache = 'apcu';
 //$cache = 'memcached';
-$cache = 'nocache';
+//$cache = 'nocache';
 
 switch ($cache) {
     case ('file'):
@@ -25,11 +27,24 @@ switch ($cache) {
         return [
             'create' => function () {
                 $server = new \Memcached();
+                $server->addServer("localhost", 11211);
                 return new Desarrolla2\Cache\Adapter\Memcached($server);
             },
             'duration' => '3600',
             'clear' => function () {
                 App::getComponent('cache')->engine->flush();
+            }
+        ];
+        break;
+
+    case ('apcu'):
+        return [
+            'create' => function () {
+                $apcu = new ApcuCache();
+                return $apcu;
+            },
+            'clear' => function () {
+                apcu_clear_cache();
             }
         ];
         break;

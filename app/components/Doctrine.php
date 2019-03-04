@@ -2,13 +2,12 @@
 
 namespace app\components;
 
-
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use app\App;
 use app\Component;
 /**
- * Class Help
+ * Class Doctrine
  * @package app\components
  */
 class Doctrine extends Component
@@ -37,6 +36,12 @@ class Doctrine extends Component
 
         // obtaining the entity manager
         $instance->db = EntityManager::create($dbConfig, $config);
+
+        if (App::getConfig('app.debug') && App::getConfig('app.clear_doctrine_metadata_cache_on_debug')) {
+            //deleting metadata cache on debug and set it in config
+            $cacheDriver = $instance->db->getConfiguration()->getMetadataCacheImpl();
+            $cacheDriver->deleteAll();
+        }
 
         return $instance;
     }
