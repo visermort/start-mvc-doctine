@@ -47,7 +47,7 @@ class Auth extends Component
             return false;
         }
         $credentials['password'] = password_hash($credentials['password'], PASSWORD_DEFAULT);
-        $user = Users::create('app\entities\Users', $credentials);
+        $user = Users::create($credentials);
         return $user;
     }
 

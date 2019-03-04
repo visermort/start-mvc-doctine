@@ -34,14 +34,21 @@ class Entity
         }
     }
 
-    public static function create($className, $data, $flush = true)
+    /**
+     * @param $data
+     * @param null $className. if null takes its name
+     * @param bool $flush - flush after persisting or not
+     * @return entity
+     */
+    public static function create($data, $className = null, $flush = true)
     {
         if (empty($data)) {
             return null;
         }
+        $className = $className ? $className : get_called_class();//if null take itself
         $entity = new $className();
         foreach ($data as $key => $value) {
-            //fields like fist_name convet to setFirstName
+            //fields like fist_name convert to setFirstName
             $method  = 'set' . App::getComponent('help')->commandToAction($key);
             if (method_exists($entity, $method)) {
                 $entity->$method($value);

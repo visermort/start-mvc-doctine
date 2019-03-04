@@ -37,10 +37,10 @@ class Tasks extends Entity
             $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
             $user = $usersRepository->findOneBy(['email' => $data['email']]);
             if (!$user) {
-                $user = static::create('app\entities\Users', $data, false);
+                $user = static::create($data, 'app\entities\Users', false);
             }
             $data['user'] = $user;
-            $task = static::create('app\entities\Tasks', $data);
+            $task = static::create($data);
             return $task;
         } catch (\Exception $e) {
             if (App::getConfig('app.debug')) {
