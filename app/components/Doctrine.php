@@ -25,10 +25,15 @@ class Doctrine extends Component
 
         $isDevMode = App::getConfig('app.debug');
 
-        //I prefered XML
-        $config = Setup::createXMLMetadataConfiguration([
-            'path' => App::getRequest('root_path') . "/app/schema",
+        //Php annotation
+        $config = Setup::createAnnotationMetadataConfiguration([
+            'path' => App::getRequest('root_path') . "/app/entities",
         ], $isDevMode);
+
+        //XML
+//        $config = Setup::createXMLMetadataConfiguration([
+//            'path' => App::getRequest('root_path') . "/app/schema",
+//        ], $isDevMode);
 
         // obtaining the entity manager
         $instance->db = EntityManager::create($dbConfig, $config);

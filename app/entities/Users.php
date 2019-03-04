@@ -4,7 +4,10 @@ namespace app\entities;
 
 use app\Entity;
 /**
- * Users
+ * @Entity
+ * @HasLifecycleCallbacks
+ * @Table(name="users", uniqueConstraints={@UniqueConstraint(name="email", columns={"email"})})
+ * @EntityListeners({"app\lib\listeners\UserListener"})
  */
 class Users  extends Entity
 {
@@ -33,52 +36,54 @@ class Users  extends Entity
     }
 
     /**
-     * @var string
+     * @Column(type="string", name="email")
      */
     private $email;
 
     /**
-     * @var string
+     * @Column(type="string", name="password")
      */
     private $password;
 
     /**
-     * @var string
+     * @Column(type="string", name="session_key", nullable=true)
      */
     private $sessionKey;
 
     /**
-     * @var string
+     * @Column(type="text", name="permissions", length=65535, nullable=true)
      */
     private $permissions;
 
     /**
-     * @var \DateTime
+     * @Column(type="datetime", name="last_login", nullable=true)
      */
     private $lastLogin;
 
     /**
-     * @var string
+     * @Column(type="string", name="first_name", nullable=true)
      */
     private $firstName;
 
     /**
-     * @var string
+     * @Column(type="string", name="last_name", nullable=true)
      */
     private $lastName;
 
     /**
-     * @var \DateTime
+     * @Column(type="datetime", name="createdAt", options={"default":"CURRENT_TIMESTAMP"})
      */
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @Column(type="datetime", name="updatedAt", options={"default":"CURRENT_TIMESTAMP"})
      */
     private $updatedAt;
 
     /**
-     * @var integer
+     * @Id
+     * @GeneratedValue(strategy="IDENTITY")
+     * @Column(type="integer", name="id")
      */
     private $id;
 
@@ -296,7 +301,7 @@ class Users  extends Entity
         return $this->id;
     }
     /**
-     * update $updatedAt
+     * @PreUpdate
      */
     public function doPreUpdate()
     {

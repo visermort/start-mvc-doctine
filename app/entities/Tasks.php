@@ -4,10 +4,10 @@ namespace app\entities;
 
 use app\App;
 use app\Entity;
-use Doctrine\ORM\Mapping as ORM;
-
 /**
- * Tasks
+ * @Entity
+ * @HasLifecycleCallbacks
+ * @Table(name="tasks", indexes={@Index(name="user_id", columns={"user_id"})})
  */
 class Tasks extends Entity
 {
@@ -51,32 +51,34 @@ class Tasks extends Entity
 
 
     /**
-     * @var string
+     * @Column(type="text", name="text", length=65535, nullable=false )
      */
     private $text;
 
     /**
-     * @var boolean
+     *  @Column(type="boolean", name="status", nullable=false, options={"default":0})
      */
     private $status = '0';
 
     /**
-     * @var \DateTime
+     *  @Column(type="datetime", name="createdAt", options={"default":"CURRENT_TIMESTAMP"})
      */
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @Column(type="datetime", name="updatedAt", options={"default":"CURRENT_TIMESTAMP"})
      */
     private $updatedAt;
 
     /**
-     * @var integer
+     * @Id
+     * @GeneratedValue(strategy="IDENTITY")
+     * @Column(type="integer", name="id")
      */
     private $id;
 
     /**
-     * @var \app\entities\Users
+     * @ManyToOne(targetEntity="app\entities\Users")
      */
     private $user;
 
@@ -209,14 +211,15 @@ class Tasks extends Entity
     }
 
     /**
-     * update $updatedAt
+     * @PreUpdate
      */
     public function doPreUpdate()
     {
         $this->updatedAt = new \DateTime();
     }
     /**
-     * clear cache after updating
+     * @PostUpdate
+     * @PostPersist
      */
     public function doPostUpdate()
     {
