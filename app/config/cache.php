@@ -1,24 +1,20 @@
 <?php
 
 use app\App;
-use Desarrolla2\Cache\Adapter\Apcu as ApcuCache;
+use Desarrolla2\Cache\Apcu as ApcuCache;
 
-//$cache = 'file';
-$cache = 'apcu';
-//$cache = 'memcached';
-//$cache = 'nocache';
+$cache = 'apcu'; //'file' 'apcu' 'memcached' 'nocache';
+$fileCachePath = App::getRequest('root_path') . '/app/runtime/disarolla/cache';
 
 switch ($cache) {
     case ('file'):
         return [
-            'create' => function () {
-                $path = App::getRequest('root_path') . '/app/runtime/disarolla/cache';
-                return new Desarrolla2\Cache\Adapter\File($path);
+            'create' => function () use ($fileCachePath) {
+                return new Desarrolla2\Cache\File($fileCachePath);
             },
             'duration' => '3600',
-            'clear' => function () {
-                $path = App::getRequest('root_path') . '/app/runtime/disarolla/cache';
-                App::getComponent('fileutils')->clearDirectory($path);
+            'clear' => function () use ($fileCachePath) {
+                App::getComponent('fileutils')->clearDirectory($fileCachePath);
             }
         ];
         break;
@@ -28,11 +24,11 @@ switch ($cache) {
             'create' => function () {
                 $server = new \Memcached();
                 $server->addServer("localhost", 11211);
-                return new Desarrolla2\Cache\Adapter\Memcached($server);
+                return new Desarrolla2\Cache\Memcached($server);
             },
             'duration' => '3600',
             'clear' => function () {
-                App::getComponent('cache')->engine->flush();
+                App::getComponent('cache')->engine->clear();
             }
         ];
         break;
@@ -44,7 +40,7 @@ switch ($cache) {
                 return $apcu;
             },
             'clear' => function () {
-                apcu_clear_cache();
+                App::getComponent('cache')->engine->clear();
             }
         ];
         break;
@@ -53,7 +49,7 @@ switch ($cache) {
         //nocache
         return [
             'create' => function () {
-                return new Desarrolla2\Cache\Adapter\NotCache();
+                return new Desarrolla2\Cache\NotCache();
             },
 
         ];
