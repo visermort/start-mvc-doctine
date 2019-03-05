@@ -6,7 +6,7 @@ use app\App;
 use app\console\Controller;
 
 /**
- *  test controller desctiption
+ *  test controller description
  */
 class TestController extends Controller
 {
@@ -15,14 +15,15 @@ class TestController extends Controller
      */
     public function actionTest($arg1 = null, $arg2 = null)
     {
-        echo 'test test arg1 '.$arg1. ' arg2'.$arg2."\n";
-        echo App::isConsole();
+        echo 'testController/actionTest  arg1='.$arg1. ' arg2='.$arg2."\n";
+        echo 'is console ' . App::isConsole();
     }
     /**
      * test-and-test action description
      */
     public function actionTestAndTest()
     {
-        echo 'test test2';
+        echo 'testContrller/actionTestAndTest'."\n";
+        echo 'is console ' . App::isConsole();
     }
 }
