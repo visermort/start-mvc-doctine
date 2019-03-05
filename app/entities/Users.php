@@ -15,6 +15,25 @@ class Users  extends Entity
         'required' => [
             ['email', 'password', 'csrf']
         ],
+        'email' => [
+            ['email']
+        ],
+
+    ];
+    public static $rulesRegister = [
+        'required' => [
+            ['email', 'password', 'first_name', 'last_name', 'csrf']
+        ],
+        'email' => [
+            ['email']
+        ],
+        'equals' => [
+            ['password', 'password_repeat']
+        ],
+        'lengthMin' => [
+            ['password', 6], ['password_repeat', 6]
+        ]
+
     ];
 
     public function __construct()

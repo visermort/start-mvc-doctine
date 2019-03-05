@@ -51,6 +51,13 @@ return [
         'h1' => 'Login',
         'breadcrumbs' => 'Login',
     ],
+    'account.register' => [
+        'title' => 'Site title. Reguster',
+        'description' => 'meta for register description',
+        'keywords' => 'meta key words register',
+        'h1' => 'Register',
+        'breadcrumbs' => 'Register',
+    ],
     'task.create'=>[
         'title' => 'Site title. Create task',
         'description' => 'meta task create description',
@@ -64,6 +71,13 @@ return [
         'keywords' => 'meta key words update task',
         'h1' => 'Update task',
         'breadcrumbs' => 'Update',
+    ],
+    'task.view' => [
+        'title' => 'Site title. View task',
+        'description' => 'meta task view description',
+        'keywords' => 'meta key words view task',
+        'h1' => 'View task',
+        //'breadcrumbs' => 'View',
     ],
 
 ];

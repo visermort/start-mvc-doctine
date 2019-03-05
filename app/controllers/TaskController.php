@@ -85,22 +85,26 @@ class TaskController extends Controller
             // validate and clean post data
             $postData = App::getRequest('post');
             $validator = App::getComponent('validator');
-            if (isset($postData['email'])) {
-                $postData['email'] = strtolower($postData['email']);
-            }
             $postData = $validator->clean($postData);
             $validateResult = $validator->validate($postData, Tasks::$createRules);
             if ($validateResult === true) {
                 //write data
 
                 $task = Tasks::createNew($postData);
-
-                //redirect with flash data
-                $this->redirect('/task/result', 302, [
-                    'success' => $task != null,
-                    'text' => $task != null ? 'Task was created successfully.' :
-                        'There was error creating task.'
-                ]);
+                if ($task === false) {
+                    //wrong user_id
+                    $this->redirect('/task/result', 302, [
+                        'success' => false,
+                        'text' => 'There was error creating task. Wrong user.',
+                    ]);
+                } else {
+                    //redirect with flash data
+                    $this->redirect('/task/result', 302, [
+                        'success' => $task != null,
+                        'text' => $task != null ? 'Task was created successfully.' :
+                            'There was error creating task.'
+                    ]);
+                }
             } else {
                 //validate fails
                 return $this->render('task/create', ['old' => $postData, 'errors' => $validateResult]);
@@ -165,6 +169,22 @@ class TaskController extends Controller
             return $this->render('results/result', ['className' => $className, 'title' => $title, 'text' => $text]);
         }
         $this->redirect('/');
+    }
+
+    /**
+     * view task
+     * @return string
+     */
+    public function actionView()
+    {
+        $id = $this->actionParams['id'];
+        $entityManager = App::getComponent('doctrine')->db;
+        $task = $entityManager->find('app\entities\Tasks', $id);
+        if (!$task) {
+            $this->actionNotfound();
+        }
+        $this->breadcrumbs[] = ['title' => $task->getId()];
+        return  $this->render('task/view', ['task' => $task]);
     }
 
 }

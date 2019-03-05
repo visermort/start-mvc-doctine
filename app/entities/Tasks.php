@@ -12,8 +12,7 @@ use app\Entity;
 class Tasks extends Entity
 {
     public static $createRules = [
-        'required'=> [['first_name', 'email', 'text', 'csrf']],
-        'email' => [['email']],
+        'required'=> [['user_id', 'text', 'csrf']],
     ];
     public static $updateRules = [
         'required'=> [['text', 'csrf']],
@@ -35,9 +34,9 @@ class Tasks extends Entity
     {
         try {
             $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
-            $user = $usersRepository->findOneBy(['email' => $data['email']]);
+            $user = $usersRepository->findOneBy(['id' => $data['user_id']]);
             if (!$user) {
-                $user = static::create($data, 'app\entities\Users', false);
+                return false;
             }
             $data['user'] = $user;
             $task = static::create($data);

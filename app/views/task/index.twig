@@ -8,7 +8,8 @@
             {{ paginator.info()|raw }}
             <div class="panel-body datagrid">
 
-                {% set permission = user_has('admin') %}
+                {% set is_admin = user_has('admin') %}
+                {% set user = user() %}
 
                 <table id="tt" class="easyui-datagrid" style="width:100%;height:auto;">
                     <thead>
@@ -17,7 +18,7 @@
                         <th class="table-sorting" nowrap>{{ sort_by('u.email', 'Email')|raw }}</th>
                         <th class="table-sorting" nowrap>{{ sort_by('u.firstName', 'Name')|raw }}</th>
                         <th class="table-sorting" nowrap>{{ sort_by('t.status', 'Status')|raw }}</th>
-                        {% if permission %}
+                        {% if user %}
                             <th class="table-sorting" nowrap></th>
                         {% endif %}
                     </tr>
@@ -29,8 +30,15 @@
                             <td>{{ task.user.email }}</td>
                             <td>{{ task.user.firstName~' '~task.user.lastName }}</td>
                             <td>{{ status(task.status) }}</td>
-                            {% if permission %}
-                                <td><a href="/task/update/{{ task.id }}"><i class="fa fa-pencil-square-o" aria-hidden="true" ></i></a></td>
+                            {% if user %}
+                                <td>
+                                    {% if user.id == task.user.id %}
+                                        <a href="/task/{{ task.id }}"><i class="fa fa-eye" aria-hidden="true" ></i></a>
+                                    {% endif %}
+                                    {% if is_admin %}
+                                        <a href="/task/update/{{ task.id }}"><i class="fa fa-pencil-square-o" aria-hidden="true" ></i></a>
+                                    {% endif %}
+                                </td>
                             {% endif %}
                         </tr>
                     {% endfor %}

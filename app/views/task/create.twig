@@ -5,32 +5,11 @@
 <div class="row">
     <div class="col-md-8">
         <h3>Create a task</h3>
+        {% set user = user() %}
         <form name="sentMessage" id="create-task" method="post">
             <input type="hidden" name="csrf"  value="{{ csrf() }}">
-            <div class="control-group form-group">
-                <div class="controls">
-                    <label for="first_name">First Name:</label>
-                    <input type="text" class="form-control"  name="first_name" id="first_name" placeholder="Enter your first name" required data-validation-required-message="Please enter first your name."
-                        value="{{ old.first_name ? old.first_name : '' }}">
-                    <p class="help-block">{{ errors.first_name ? errors.first_name : '' }}</p>
-                </div>
-            </div>
-            <div class="control-group form-group">
-                <div class="controls">
-                    <label for="last_name">Last Name:</label>
-                    <input type="tel" class="form-control" placeholder="Enter your last name"  name="last_name"  id="last_name" data-validation-required-message="Please enter your last name."
-                           value="{{ old.last_name ? old.last_name : '' }}">
-                    <p class="help-block">{{ errors.last_name ? errors.last_name : '' }}</p>
-                </div>
-            </div>
-            <div class="control-group form-group">
-                <div class="controls">
-                    <label for="email">Email Address:</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"  required data-validation-required-message="Please enter your email address."
-                           value="{{ old.email ? old.email : '' }}">
-                    <p class="help-block">{{ errors.email ? errors.email : '' }}</p>
-                </div>
-            </div>
+            <input type="hidden" name="user_id"  value="{{ user ? user.id : 0 }}">
+
             <div class="control-group form-group">
                 <div class="controls">
                     <label for="text">Text:</label>
@@ -44,9 +23,14 @@
             <button type="submit" class="btn btn-primary">Create task</button>
         </form>    </div>
     <div class="col-md-4">
-        <h3>About tasks</h3>
+        <h3>Create a task</h3>
         <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus accusantium alias atque beatae debitis dolorum, ducimus id in iste minus molestiae nesciunt numquam pariatur provident sequi unde ut vel voluptatibus?
+            For me.
+        </p>
+        <p>
+            {% if user %}
+            I am {{ user.firstName }} {{ user.lastName }}
+            {% endif %}
         </p>
     </div>
 </div>

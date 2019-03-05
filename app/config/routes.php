@@ -1,18 +1,17 @@
 <?php
 
 return [
-    ['GET',           '/', 'task.index'],// controller.action [.permission]
-  //  ['GET',           '/test', 'site.test'],
-    ['GET',           '/task/result', 'task.result'],
+    //['method' of [methods], 'route', 'controller.action [.permission]']
+    ['GET',           '/', 'task.index'],
     [['GET', 'POST'], '/login', 'account.login'],
+    [['GET', 'POST'], '/register', 'account.register'],
 
     ['GET',           '/account', 'account.index.auth'],//.auth - need login
     ['GET',           '/account/logout', 'account.logout.auth'],//.auth need login
 
-
-    [['GET', 'POST'], '/task/create', 'task.create'],
+    [['GET', 'POST'], '/task/create', 'task.create.auth'],//.auth - need login
+    ['GET',           '/task/{id:\d+}', 'task.view.auth'],//need login
+    ['GET',           '/task/result', 'task.result.auth'],//need login
     [['GET', 'POST'], '/task/update/{id:\d+}', 'task.update.admin'], //.admin  - need permission admin
-
- //   ['GET', '/createadmin', 'account.createadmin'], //for start create admin user
 
 ];

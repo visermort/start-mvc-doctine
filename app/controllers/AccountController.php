@@ -73,22 +73,38 @@ class AccountController extends Controller
     }
 
     /**
-     * TEST
-     * create user with admin permission
+     * @return string
      */
-    public function actionCreateadmin()
+    public function actionRegister()
     {
-        $auth = App::getComponent('auth');
-        $user = $auth->register([
-            'email' => 'account@emial.email',
-            'password' => '123456',
-            'first_name' => 'Developer',
-            'last_name' => 'Admin',
-        ]);
-        d($user);
-        $permissions =  $auth->setUserPermision('account@emial.email', 'admin');
-        d($permissions);
-        d($auth->hasAccessTo('account@emial.email', 'admin'));
+        $user = App::getUser();
+        if ($user) {
+            $this->redirect('/');
+        }
+        if (App::getRequest('method') == 'POST') {
+            //if post
+            // validate and clean post data
+            $postData = App::getRequest('post');
+            $validator = App::getComponent('validator');
+            $postData = $validator->clean($postData);
+            $validateResult = $validator->validate($postData, Users::$rulesRegister);
+            if ($validateResult === true) {
+                $auth = App::getComponent('auth');
+                $user = $auth->register($postData);
+                if ($user) {
+                    $auth->login($user);
+                    $this->redirect(App::getConfig('app.account_start_page'));
+                }
+                if ($user === false) {
+                    $validateResult = [
+                        'email' => 'This email is used. Please <a href="/login">login</a> or do password recowery',
+                    ];
+                }
+            }
+            return $this->render('account/register', ['old' => $postData, 'errors' => $validateResult]);
+        }
+        //start
+        return $this->render('account/register');
     }
 
 
