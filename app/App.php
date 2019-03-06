@@ -11,19 +11,11 @@ use app\classes\ConsoleRunner;
 class App
 {
     private static $instance;
-    /**
-     * @var array
-     */
-    private static $components = [];
 
-    /**
-     * @var bool
-     */
-    private static $isConsole = false;
+    private $components = [];
 
-    /*
-     * vars for run action
-     */
+    private $isConsole = false;
+
     private $controllerName;
 
     private $actionName;
@@ -34,14 +26,8 @@ class App
 
     private $rootPath;
 
-    /**
-     * @var controller instance
-     */
     protected $controller;
 
-    /**
-     * App constructor.
-     */
     private function __construct()
     {
     }
@@ -62,7 +48,7 @@ class App
         }
         self::$instance->rootPath = realpath(__DIR__ . '/../');
 
-        self::$isConsole = !$web;
+        self::$instance->isConsole = !$web;
         self::$instance->makeComponents();
 
 
@@ -74,7 +60,7 @@ class App
         //check if user is logged
         self::getComponent('auth');
 
-        if (!self::$isConsole) {
+        if (!self::$instance->isConsole) {
             self::$instance->run();
         }
         return self::$instance;
@@ -192,10 +178,10 @@ class App
     {
         $name = ucfirst($name);
         $className = 'app\components\\' . $name;
-        if (self::$components[$name] === null && class_exists($className)) {
-            self::$components[$name] = $className::init();
+        if (self::$instance->components[$name] === null && class_exists($className)) {
+            self::$instance->components[$name] = $className::init();
         }
-        return self::$components[$name];
+        return self::$instance->components[$name];
     }
 
     /**
@@ -203,9 +189,12 @@ class App
      */
     public static function isConsole()
     {
-        return self::$isConsole;
+        return self::$instance->isConsole;
     }
 
+    /**
+     * @return mixed
+     */
     public static function getController()
     {
         return self::$instance->controller;
@@ -243,7 +232,7 @@ class App
                 $fileKey = str_replace('.php', '', $file);
                 if (class_exists('app\components\\' . $fileKey) &&
                     is_subclass_of('app\components\\' . $fileKey, 'app\Component')) {
-                    self::$components[$fileKey] = null;
+                    self::$instance->components[$fileKey] = null;
                 }
             }
         }

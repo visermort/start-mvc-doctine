@@ -5,7 +5,8 @@ namespace app\controllers;
 use app\Controller;
 use app\App;
 use app\entities\Tasks;
-use app\lib\paginator\Paginator;
+use app\classes\paginator\Paginator;
+use app\classes\Help;
 
 
 /**
@@ -33,7 +34,7 @@ class TaskController extends Controller
         $request = App::getComponent('request');
         $auth = App::getComponent('auth');
 
-        $cacheName = 'task_index' . App::getComponent('help')->multiImplode('_', $request->get('get')) .
+        $cacheName = 'task_index' . Help::multiImplode('_', $request->get('get')) .
             ($request->get('isAjax') ? '_ajax' : '') . ($auth->isGuest() ? '_guest' : '');
 
         $page = $cache->getOrSet($cacheName, function () use ($request) {

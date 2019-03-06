@@ -2,6 +2,7 @@
 
 use app\App;
 use Desarrolla2\Cache\Apcu as ApcuCache;
+use app\classes\Help;
 
 $cache = 'nocache'; //'file' 'apcu' 'memcached' 'nocache';
 $fileCachePath = App::getRootPath() . '/app/runtime/disarolla/cache';
@@ -14,7 +15,7 @@ switch ($cache) {
             },
             'duration' => '3600',
             'clear' => function () use ($fileCachePath) {
-                App::getComponent('fileutils')->clearDirectory($fileCachePath);
+                Help::clearDirectory($fileCachePath);
             }
         ];
         break;

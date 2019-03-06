@@ -50,7 +50,7 @@ class Entity
         $entity = new $className();
         foreach ($data as $key => $value) {
             //fields like fist_name convert to setFirstName
-            $method  = 'set' . App::getComponent('help')->commandToAction($key);
+            $method  = 'set' . Help::commandToAction($key);
             if (method_exists($entity, $method)) {
                 $entity->$method($value);
             }

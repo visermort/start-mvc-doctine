@@ -43,7 +43,8 @@ class AccountController extends Controller
      */
     public function actionLogin()
     {
-        $user = App::getUser();
+        $auth = App::getComponent('auth');
+        $user = $auth->getUser();
         if ($user) {
             $this->redirect('/');
         }
@@ -56,7 +57,6 @@ class AccountController extends Controller
             $postData = $validator->clean($postData);
             $validateResult = $validator->validate($postData, Users::$rulesLogin);
             if ($validateResult === true) {
-                $auth = App::getComponent('auth');
                 $user = $auth->authenticate($postData);
                 if ($user) {
                     $auth->login($user);
@@ -78,7 +78,8 @@ class AccountController extends Controller
      */
     public function actionRegister()
     {
-        $user = App::getUser();
+        $auth = App::getComponent('auth');
+        $user = $auth->getUser();
         if ($user) {
             $this->redirect('/');
         }
@@ -91,7 +92,6 @@ class AccountController extends Controller
             $postData = $validator->clean($postData);
             $validateResult = $validator->validate($postData, Users::$rulesRegister);
             if ($validateResult === true) {
-                $auth = App::getComponent('auth');
                 $user = $auth->register($postData);
                 if ($user) {
                     $auth->login($user);

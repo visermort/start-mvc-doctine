@@ -1,10 +1,14 @@
 <?php
 
-namespace app\lib\listeners;
+namespace app\classes\listeners;
 
 use app\entities\Users;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 
+/**
+ * Class UserListener
+ * @package app\classes\listeners
+ */
 class UserListener
 {
     /** @PostPersist */

@@ -7,7 +7,7 @@ use app\Entity;
  * @Entity
  * @HasLifecycleCallbacks
  * @Table(name="users", uniqueConstraints={@UniqueConstraint(name="email", columns={"email"})})
- * @EntityListeners({"app\lib\listeners\UserListener"})
+ * @EntityListeners({"app\classes\listeners\UserListener"})
  */
 class Users  extends Entity
 {

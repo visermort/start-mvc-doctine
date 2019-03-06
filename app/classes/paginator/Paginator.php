@@ -1,10 +1,10 @@
 <?php
 
-namespace app\lib\paginator;
+namespace app\classes\paginator;
 
 use app\App;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
-use app\lib\paginator\PaginateButton;
+
 
 /**
  * Class Paginator

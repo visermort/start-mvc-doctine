@@ -1,6 +1,7 @@
 <?php
 
 use app\App;
+use app\classes\Help;
 
 /**
  * custom functions for twig
@@ -26,8 +27,7 @@ return [
         return $auth->getUser();
     },
     'sort_by' => function ($name, $title) {
-        $help = App::getComponent('help');
-        return $help->sortBy($name, $title);
+        return Help::sortBy($name, $title);
     },
     'user_has' => function ($permission) {
         $auth = App::getComponent('auth');

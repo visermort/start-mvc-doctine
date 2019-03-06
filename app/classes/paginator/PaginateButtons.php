@@ -1,6 +1,6 @@
 <?php
 
-namespace app\lib\paginator;
+namespace app\classes\paginator;
 
 class PaginateButtons
 {

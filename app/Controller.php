@@ -2,7 +2,7 @@
 
 namespace app;
 
-
+use app\classes\Help;
 /** base controller
  * Class Controller
  * @package app
@@ -44,8 +44,7 @@ class Controller
         //breadcrumbs
         $this->breadcrumbs[] = ['title' => 'Home', 'url' => '/'];
         $slugs = explode('.', $this->actionSlug);
-        $help = App::getComponent('help');
-        $routes = $help->arrayMap($config->getSection('routes'), 2, 1);
+        $routes = Help::arrayMap($config->getSection('routes'), 2, 1);
         $routesArr = [];
         foreach ($routes as $key => $route) {
             $keyArr = explode('.', $key);

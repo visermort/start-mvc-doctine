@@ -2,6 +2,8 @@
 
 namespace app;
 
+use app\classes\Help;
+
 /**
  * Class View
  * @package app
@@ -38,8 +40,7 @@ class View
         $config = App::getComponent('config');
         if ($config->get('app.debug') && $config->get('app.clear_twig_cache_on_debug')) {
             //clear cache if set in config
-            $help = App::getComponent('fileutils');
-            $help->clearDirectory($cachePath);
+            Help::clearDirectory($cachePath);
         }
 
         //init twit
