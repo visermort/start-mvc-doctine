@@ -16,9 +16,9 @@ class TaskController extends Controller
 {
     public function beforeAction()
     {
-        $page = App::getRequest('get', 'page');
+        $page = App::getComponent('request')->get('get.page');
         if ($page == 1) {
-            $url = App::getRequest('path');
+            $url = App::getComponent('request')->get('path');
             $this->redirect($url);
         }
         parent::beforeAction();
@@ -30,15 +30,17 @@ class TaskController extends Controller
     public function actionIndex()
     {
         $cache = App::getComponent('cache');
+        $request = App::getComponent('request');
+        $auth = App::getComponent('auth');
 
-        $cacheName = 'task_index' . App::getComponent('help')->multiImplode('_', App::getRequest('get')) .
-            (App::getRequest('isAjax') ? '_ajax' : '') . (App::isGuest() ? '_guest' : '');
+        $cacheName = 'task_index' . App::getComponent('help')->multiImplode('_', $request->get('get')) .
+            ($request->get('isAjax') ? '_ajax' : '') . ($auth->isGuest() ? '_guest' : '');
 
-        $page = $cache->getOrSet($cacheName, function () {
+        $page = $cache->getOrSet($cacheName, function () use ($request) {
 
-            $sortBy = App::getRequest('get', 'sort');
-            $page = App::getRequest('get', 'page');
-            $direction = App::getRequest('get', 'order');
+            $sortBy = $request->get('get.sort');
+            $page = $request->get('get.page');
+            $direction = $request->get('get.order');
 
             if (!$sortBy) {
                 $sortBy = 't.id';
@@ -63,7 +65,7 @@ class TaskController extends Controller
             }
             $paginator = new Paginator($query, ['page' => $page, 'link_classes' => ['ajax-button']]);
 
-            $this->ajaxResponse = App::getRequest('isAjax');
+            $this->ajaxResponse = $request->get('isAjax');
 
             return $this->render('task/index', [
                 'paginator' => $paginator,
@@ -80,10 +82,11 @@ class TaskController extends Controller
      */
     public function actionCreate()
     {
-        if (App::getRequest('method') == 'POST') {
+        $request = App::getComponent('request');
+        if ($request->get('method') == 'POST') {
             //if post
             // validate and clean post data
-            $postData = App::getRequest('post');
+            $postData = $request->get('post');
             $validator = App::getComponent('validator');
             $postData = $validator->clean($postData);
             $validateResult = $validator->validate($postData, Tasks::$createRules);
@@ -123,14 +126,15 @@ class TaskController extends Controller
         $id = $this->actionParams['id'];
         $entityManager = App::getComponent('doctrine')->db;
         $task = $entityManager->find('app\entities\Tasks', $id);
+        $request = App::getComponent('request');
 
         if (!$task) {
             return $this->actionNotfound();
         }
-        if (App::getRequest('method') == 'POST') {
+        if ($request->get('method') == 'POST') {
             //if post
             // validate and clean post data
-            $postData = App::getRequest('post');
+            $postData = $request->get('post');
             $validator = App::getComponent('validator');
             $postData = $validator->clean($postData);
             $postData['status'] = $postData['status'] ? 1 : 0;

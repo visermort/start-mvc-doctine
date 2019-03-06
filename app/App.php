@@ -2,7 +2,7 @@
 
 namespace app;
 
-use app\lib\console\ConsoleRunner;
+use app\classes\ConsoleRunner;
 
 /**
  * Class App
@@ -12,22 +12,9 @@ class App
 {
     private static $instance;
     /**
-     * @var configs for app
-     */
-    private static $config;
-    /**
-     * @var request data
-     */
-    private static $request;
-    /**
      * @var array
      */
     private static $components = [];
-
-    /**
-     * @var null
-     */
-    private static $user = null;
 
     /**
      * @var bool
@@ -44,6 +31,8 @@ class App
     private $actionSlug;
 
     private $actionParams =[];
+
+    private $rootPath;
 
     /**
      * @var controller instance
@@ -71,11 +60,18 @@ class App
         if (self::$instance == null) {
             self::$instance = new self();
         }
+        self::$instance->rootPath = realpath(__DIR__ . '/../');
+
         self::$isConsole = !$web;
-        self::$instance->makeRequest();
-        self::$instance->makeConfigs();
         self::$instance->makeComponents();
 
+
+        $config = self::getComponent('config');
+        if ($config->get('app.debug')) {
+            ini_set('display_errors', 1);
+        }
+
+        //check if user is logged
         self::getComponent('auth');
 
         if (!self::$isConsole) {
@@ -91,8 +87,10 @@ class App
      */
     private function run()
     {
-        $dispatcher = $this->getDispatcher(self::getConfigSection('routes'));
-        $routeInfo = $dispatcher->dispatch(self::getRequest('method'), self::getRequest('path'));
+        $request = self::getComponent('request');
+        $config = self::getComponent('config');
+        $dispatcher = $this->getDispatcher($config->getSection('routes'));
+        $routeInfo = $dispatcher->dispatch($request->get('method'), $request->get('path'));
 
         switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
@@ -126,16 +124,18 @@ class App
      */
     private function handleAction($routeInfo)
     {
+        $config = App::getComponent('config');
+        $auth = App::getComponent('auth');
         $this->actionParams = $routeInfo[2];
         $handler = explode('.', $routeInfo[1]);
         $this->controllerName = 'app\controllers\\' . ucfirst($handler[0]) . 'Controller';
         $controllerFile = ucfirst($handler[0]) . 'Controller.php';
         $this->actionName = 'action' . ucfirst($handler[1]);
         $this->actionSlug = $handler[0] . '.' . $handler[1];
-        if (!file_exists(self::$request['root_path'] . '/app/controllers/' . $controllerFile) ||
+        if (!file_exists($this->rootPath . '/app/controllers/' . $controllerFile) ||
             !method_exists($this->controllerName, $this->actionName)) {
             //there is not a controller file or action name == index
-            if (App::getConfig('app.debug')) {
+            if ($config->get('app.debug')) {
                 echo 'There is not a controller file "' . $controllerFile;
             }
             $this->errorNotFound();
@@ -144,13 +144,13 @@ class App
             //part of hangler for checking permissions
             if ($handler[2] == 'auth') {
                 //need login and not logged
-                if (App::isGuest()) {
-                    $this->redirect(App::getConfig('app.login_url'));
+                if ($auth->isGuest()) {
+                    $this->redirect($config->get('app.login_url'));
                 }
             } else {
                 //check permission for $handler[2]
                 $auth = self::getComponent('auth');
-                $user = self::getUser();
+                $user = $auth->getUser();
                 $checkUser = $user ? $user->hasAccessTo($handler[2]) : false;
                 if (!$checkUser) {
                     //user does not exists or user does not have a permission
@@ -176,46 +176,11 @@ class App
     }
 
     /**
-     * get a config
-     * @param $name
-     * @return bool
+     * @return mixed
      */
-    public static function getConfig($name)
+    public static function getRootPath()
     {
-        return isset(self::$config[$name]) ? self::$config[$name] : null;
-    }
-
-    /**
-     * get a whole section of config
-     * @param $sectionName
-     * @return array
-     */
-    public static function getConfigSection($sectionName)
-    {
-        $out = [];
-        foreach (self::$config as $key => $config) {
-            if (strpos($key, $sectionName . '.') === 0) {
-                $out[$key] = $config;
-            }
-        }
-        return $out;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     */
-    public static function setMeta($name, $value)
-    {
-        self::$config['meta.'.$name] = $value;
-    }
-
-    public static function getRequest($name, $param = null)
-    {
-        if ($param) {
-            return (isset(self::$request[$name][$param]) ? self::$request[$name][$param] : null);
-        }
-        return (isset(self::$request[$name]) ? self::$request[$name] : null);
+        return self::$instance->rootPath;
     }
 
     /**
@@ -231,31 +196,6 @@ class App
             self::$components[$name] = $className::init();
         }
         return self::$components[$name];
-    }
-
-    /**
-     * @param $user
-     */
-    public static function setUser($user)
-    {
-        self::$user = $user;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function isGuest()
-    {
-        return self::$user == null;
-    }
-
-
-    /**
-     * @return null
-     */
-    public static function getUser()
-    {
-        return self::$user;
     }
 
     /**
@@ -284,52 +224,10 @@ class App
             echo $this->controller->$method();
             exit;
         } else {
-            if (self::getConfig('debug')) {
+            if (App::getComponent('config')->get('debug')) {
                 echo 'Error! Controller or action not found';
             }
             exit;
-        }
-    }
-
-    /**
-     * request
-     */
-    private function makeRequest()
-    {
-        self::$request['server'] = $_SERVER;
-        self::$request['get'] = $_GET;
-        self::$request['post'] = $_POST;
-        self::$request['file'] = $_FILES;
-        self::$request['root_path'] = realpath(__DIR__ . '/../');
-        self::$request['url'] = isset(self::$request['server']['REQUEST_URI']) ?
-            self::$request['server']['REQUEST_URI'] : '';
-        $path = explode('?', self::$request['url']);
-        self::$request['path'] = rawurldecode($path[0]);
-        self::$request['isPost'] = !empty(self::$request['post']);
-        self::$request['method'] = isset(self::$request['server']['REQUEST_METHOD']) ?
-            self::$request['server']['REQUEST_METHOD'] : '';
-        self::$request['isAjax'] =  !empty(self::$request['server']['HTTP_X_REQUESTED_WITH'])
-            && strtolower(self::$request['server']['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-    }
-
-    /**
-     * configs
-     */
-    private function makeConfigs()
-    {
-        $configDirectory = self::$request['root_path'] . '/app/config';
-        $configFiles = array_diff(scandir($configDirectory), ['.', '..']);
-        foreach ($configFiles as $configFile) {
-            if (is_file($configDirectory . '/' . $configFile)) {
-                $fileKey = str_replace('.php', '', $configFile);
-                $configs = include 'config/' . $configFile;
-                foreach ($configs as $key => $config) {
-                    self::$config[$fileKey . '.' . $key] = $config;
-                }
-            }
-        }
-        if (self::getConfig('app.debug')) {
-            ini_set('display_errors', 1);
         }
     }
 
@@ -338,7 +236,7 @@ class App
      */
     private function makeComponents()
     {
-        $componentsDirectory = self::$request['root_path'] . '/app/components';
+        $componentsDirectory = $this->rootPath . '/app/components';
         $componentFiles = array_diff(scandir($componentsDirectory), ['.', '..']);
         foreach ($componentFiles as $file) {
             if (is_file($componentsDirectory . '/' . $file)) {

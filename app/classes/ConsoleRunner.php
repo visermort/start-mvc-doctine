@@ -1,6 +1,6 @@
 <?php
 
-namespace app\lib\console;
+namespace app\classes;
 
 use app\App;
 
@@ -27,7 +27,7 @@ class ConsoleRunner
         $actionPath = isset($arguments[1]) ? explode('/', $arguments[1]) : false;
         if (isset($actionPath[1])) {
             $this->className = $this->controllersNameSpace . '\\' . ucfirst($actionPath[0]) . 'Controller';
-            $this->actionName = 'action' . App::getComponent('help')->commandToAction($actionPath[1]);
+            $this->actionName = 'action' . Help::commandToAction($actionPath[1]);
         }
     }
 
@@ -56,7 +56,7 @@ class ConsoleRunner
     public function getEnabledCommands()
     {
         $out = '';
-        $controllersFullPath = App::getRequest('root_path') . $this->controllersPath;
+        $controllersFullPath = App::getRootPath() . $this->controllersPath;
         $controllerFiles = array_diff(scandir($controllersFullPath), ['.', '..']);
         foreach ($controllerFiles as $file) {
             if (is_dir($controllersFullPath . '/' . $file)) {
@@ -81,7 +81,7 @@ class ConsoleRunner
                 $out .= $controllerComment."\n";
                 foreach ($methods as $method) {
                     if (substr($method, 0, 6) == 'action') {
-                        $methodIndex = App::getComponent('help')->commandToAction(substr($method, 6), true);
+                        $methodIndex = Help::commandToAction(substr($method, 6), true);
                         $reflection = new \ReflectionMethod($className, $method);
 
                         $comment = trim(preg_replace(

@@ -2,6 +2,7 @@
 
 namespace app;
 
+use app\classes\Help;
 /**
  * Class Entity parent class for entities
  * @package app
@@ -17,7 +18,7 @@ class Entity
         try {
             foreach ($data as $key => $value) {
                 //fields like fist_name convet to  setFirstName
-                $method  = 'set' . App::getComponent('help')->commandToAction($key);
+                $method  = 'set' . Help::commandToAction($key);
                 if (method_exists($this, $method)) {
                     $this->$method($value);
                 }
@@ -27,7 +28,7 @@ class Entity
             }
             return true;
         } catch (\Exception $e) {
-            if (App::getConfig('app.debug')) {
+            if (App::getComponent('config')->get('app.debug')) {
                 d($e);
             }
             return false;

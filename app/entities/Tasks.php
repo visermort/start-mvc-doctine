@@ -42,7 +42,7 @@ class Tasks extends Entity
             $task = static::create($data);
             return $task;
         } catch (\Exception $e) {
-            if (App::getConfig('app.debug')) {
+            if (App::getComponent('config')->get('app.debug')) {
                 d($e);
             }
         }

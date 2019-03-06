@@ -4,7 +4,7 @@ use app\App;
 use Desarrolla2\Cache\Apcu as ApcuCache;
 
 $cache = 'nocache'; //'file' 'apcu' 'memcached' 'nocache';
-$fileCachePath = App::getRequest('root_path') . '/app/runtime/disarolla/cache';
+$fileCachePath = App::getRootPath() . '/app/runtime/disarolla/cache';
 
 switch ($cache) {
     case ('file'):

@@ -37,29 +37,30 @@ class Controller
      */
     public function beforeAction()
     {
+        $config = App::getComponent('config');
         //metadata
-        $this->meta = App::getConfig('meta.' . $this->actionSlug) ?
-            App::getConfig('meta.' . $this->actionSlug) : App::getConfig('site.index');
+        $this->meta = $config->get('meta.' . $this->actionSlug) ?
+            $config->get('meta.' . $this->actionSlug) : $config->get('meta.site.index');
         //breadcrumbs
         $this->breadcrumbs[] = ['title' => 'Home', 'url' => '/'];
         $slugs = explode('.', $this->actionSlug);
         $help = App::getComponent('help');
-        $routes = $help->arrayMap(App::getConfigSection('routes'), 2, 1);
+        $routes = $help->arrayMap($config->getSection('routes'), 2, 1);
         $routesArr = [];
         foreach ($routes as $key => $route) {
             $keyArr = explode('.', $key);
             $index = $keyArr[0].'.'.$keyArr[1];
             $routesArr[$index] = preg_replace('/\\/*{.*\}/', '', $route);
         }
-        if (isset(App::getConfig('meta.'.$slugs[0] . '.index')['breadcrumbs'])) {
+        if (isset($config->get('meta.'.$slugs[0] . '.index')['breadcrumbs'])) {
             $this->breadcrumbs[] = [
-                'title' => App::getConfig('meta.'.$slugs[0] . '.index')['breadcrumbs'],
+                'title' => $config->get('meta.'.$slugs[0] . '.index')['breadcrumbs'],
                 'url' => isset($routesArr[$slugs[0] . '.index']) ? $routesArr[$slugs[0] . '.index'] : false,
             ];
         }
-        if ($slugs[0] . '.index' != $this->actionSlug && isset(App::getConfig('meta.'.$this->actionSlug)['breadcrumbs'])) {
+        if ($slugs[0] . '.index' != $this->actionSlug && isset($config->get('meta.'.$this->actionSlug)['breadcrumbs'])) {
             $this->breadcrumbs[] = [
-                'title' => App::getConfig('meta.'.$this->actionSlug)['breadcrumbs'],
+                'title' => $config->get('meta.'.$this->actionSlug)['breadcrumbs'],
                 'url' => isset($routesArr[$this->actionSlug]) ? $routesArr[$this->actionSlug] : false,
             ];
         }

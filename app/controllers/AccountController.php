@@ -47,10 +47,11 @@ class AccountController extends Controller
         if ($user) {
             $this->redirect('/');
         }
-        if (App::getRequest('method') == 'POST') {
+        $request = App::getComponent('request');
+        if ($request->get('method') == 'POST') {
             //if post
             // validate and clean post data
-            $postData = App::getRequest('post');
+            $postData = $request->get('post');
             $validator = App::getComponent('validator');
             $postData = $validator->clean($postData);
             $validateResult = $validator->validate($postData, Users::$rulesLogin);
@@ -59,7 +60,7 @@ class AccountController extends Controller
                 $user = $auth->authenticate($postData);
                 if ($user) {
                     $auth->login($user);
-                    $this->redirect(App::getConfig('app.account_start_page'));
+                    $this->redirect(App::getComponent('config')->get('app.account_start_page'));
                 }
                 $validateResult = [
                     'password' => 'You user name or password are invalid',
@@ -81,10 +82,11 @@ class AccountController extends Controller
         if ($user) {
             $this->redirect('/');
         }
-        if (App::getRequest('method') == 'POST') {
+        $request = App::getComponent('request');
+        if ($request->get('method') == 'POST') {
             //if post
             // validate and clean post data
-            $postData = App::getRequest('post');
+            $postData = $request->get('post');
             $validator = App::getComponent('validator');
             $postData = $validator->clean($postData);
             $validateResult = $validator->validate($postData, Users::$rulesRegister);
@@ -93,7 +95,7 @@ class AccountController extends Controller
                 $user = $auth->register($postData);
                 if ($user) {
                     $auth->login($user);
-                    $this->redirect(App::getConfig('app.account_start_page'));
+                    $this->redirect(App::getComponent('config')->get('app.account_start_page'));
                 }
                 if ($user === false) {
                     $validateResult = [

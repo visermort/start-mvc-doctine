@@ -20,13 +20,13 @@ class Doctrine extends Component
     {
         $instance = parent::init();
 
-        $dbConfig = App::getConfig('database.connection');
-
-        $isDevMode = App::getConfig('app.debug');
+        $appConfig = App::getComponent('config');
+        $dbConfig = $appConfig->get('database.connection');
+        $isDevMode = $appConfig->get('app.debug');
 
         //Php annotation
         $config = Setup::createAnnotationMetadataConfiguration([
-            'path' => App::getRequest('root_path') . "/app/entities",
+            'path' => App::getRootPath() . "/app/entities",
         ], $isDevMode);
 
         //XML
@@ -37,7 +37,7 @@ class Doctrine extends Component
         // obtaining the entity manager
         $instance->db = EntityManager::create($dbConfig, $config);
 
-        if (App::getConfig('app.debug') && App::getConfig('app.clear_doctrine_metadata_cache_on_debug')) {
+        if ($appConfig->get('app.debug') && $appConfig->get('app.clear_doctrine_metadata_cache_on_debug')) {
             //deleting metadata cache on debug and set it in config
             $cacheDriver = $instance->db->getConfiguration()->getMetadataCacheImpl();
             $cacheDriver->deleteAll();

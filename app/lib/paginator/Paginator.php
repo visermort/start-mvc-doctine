@@ -35,7 +35,7 @@ class Paginator
         $this->single = isset($params['single']) ? $params['single'] : false;
         $this->page = isset($params['page']) ? $params['page'] : $this->page;
         $this->page = $this->page == 0 ? 1 : $this->page;
-        $this->limit = isset($params['limit']) ? $params['limit'] : App::getConfig('grids.limit');
+        $this->limit = isset($params['limit']) ? $params['limit'] : App::getComponent('config')->get('grids.limit');
         $this->itemClasses = isset($params['item_classes']) ? $params['item_classes'] : [];
         $this->linkClasses = isset($params['link_classes']) ? $params['link_classes'] : [];
 
@@ -89,19 +89,21 @@ class Paginator
         if ($this->single || $this->pageCount == 1) {
             return '';
         }
-        $buttonCount = App::getConfig('grids.paginage_buttons');
+        $buttonCount = App::getComponent('config')->get('grids.paginage_buttons');
         $start = $this->page - round(floor($buttonCount/2));
         $buttonStart = $start < 1 ? 1 : $start;
         $buttonStart = $this->pageCount > $buttonCount && $buttonStart + $buttonCount - 1 > $this->pageCount ?
             $this->pageCount - $buttonCount + 1 : $buttonStart;
 
+        $request = App::getComponent('request');
+
         //make pagination html
         $paginateButtons = new PaginateButtons([
-            'url' => App::getRequest('path'),
+            'url' => $request->get('path'),
             'current_page' => $this->page,
             'link_classes' => $this->linkClasses,
             'item_classes' => $this->itemClasses,
-            'get_params' => App::getRequest('get'),
+            'get_params' => $request->get('get'),
             ]);
 
         $out = '<ul class="pagination">';

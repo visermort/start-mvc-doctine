@@ -12,26 +12,38 @@ use app\entities\Users;
  */
 class Auth extends Component
 {
+    private $user;
     /**
      * check login
      */
     public static function init()
     {
+        $instance = parent::init();
         try {
-            $sessionKey = App::getComponent('session')->get(App::getConfig('app.session_user_key'));
+            $sessionKey = App::getComponent('session')->get(App::getComponent('config')->get('app.session_user_key'));
             if ($sessionKey) {
                 $usersRepository = App::getComponent('doctrine')->db->getRepository('app\entities\Users');
                 $user = $usersRepository->findOneBy(['sessionKey' => $sessionKey]);
                 if ($user) {
-                    App::setUser($user);
+                    $instance->user = $user;
                 }
             }
         } catch (\Exception $e) {
-            if (App::getConfig('app.debug')) {
+            if (App::getComponent('config')->get('app.debug')) {
                 echo $e->getMessage();
             }
         }
-        return parent::init();
+        return $instance;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function isGuest()
+    {
+        return empty($this->user);
     }
 
     /**
@@ -70,10 +82,10 @@ class Auth extends Component
      */
     public function login($user)
     {
-        App::setUser($user);
+        $this->user = $user;
         $sessionKey = bin2hex(random_bytes(16));
         $user->update(['session_key' => $sessionKey, 'last_login' => new \DateTime()]);
-        App::getComponent('session')->set(App::getConfig('app.session_user_key'), $sessionKey);
+        App::getComponent('session')->set(App::getComponent('config')->get('app.session_user_key'), $sessionKey);
         return $user;
     }
 
@@ -82,12 +94,10 @@ class Auth extends Component
      */
     public function logout()
     {
-        $user = App::getUser();
-        if ($user) {
-            $user->update(['session_key' => null]);
-            App::setUser(null);
+        if ($this->user) {
+            $this->user->update(['session_key' => null]);
+            $this->user = null;
         }
-
         App::getComponent('session')->destroy();
     }
 

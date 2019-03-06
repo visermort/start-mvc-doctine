@@ -7,7 +7,7 @@ use app\App;
  */
 return [
     'config' => function ($name) {
-        return App::getConfig($name);
+        return App::getComponent('config')->get($name);
     },
     'date' => function ($pattern, $date = null) {
         if ($date) {
@@ -22,14 +22,16 @@ return [
         return date($pattern, $date);
     },
     'user' => function () {
-        return App::getUser();
+        $auth = App::getComponent('auth');
+        return $auth->getUser();
     },
     'sort_by' => function ($name, $title) {
         $help = App::getComponent('help');
         return $help->sortBy($name, $title);
     },
     'user_has' => function ($permission) {
-        $user =  App::getUser();
+        $auth = App::getComponent('auth');
+        $user =  $auth->getUser();
         return $user && $user->hasAccessTo($permission) ? 1 : 0;
     },
     'status' => function ($status) {

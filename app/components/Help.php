@@ -17,10 +17,11 @@ class Help extends Component
      */
     public function sortBy($name, $title)
     {
-        $path = App::getRequest('path');
-        $sort = App::getRequest('get', 'sort');
-        $order = App::getRequest('get', 'order');
-        $params = App::getRequest('get');
+        $request = App::getComponent('request');
+        $path = $request->get('path');
+        $sort = $request->get('get.sort');
+        $order = $request->get('get.order');
+        $params = $request->get('get');
 
         $newOrder = $name != $sort ? 'asc' :  ($order == 'asc' ? 'desc' : 'asc');
         $params['sort'] = $name;
@@ -68,25 +69,5 @@ class Help extends Component
         return $out;
     }
 
-    /**
-     * partone-parttwo-partthree or partone_parttwo_partthree to PartoneParttwoPartthree if reverse false
-     * or back if $reverse true
-     * @param string $command
-     * @return string
-     */
-    public function commandToAction($command, $reverse = false)
-    {
-        if ($reverse) {
-            $commandArray = array_diff(preg_split('/(?=[A-Z])/', $command), ['']);
-            foreach ($commandArray as &$item) {
-                $item = strtolower($item);
-            }
-            return implode('-', $commandArray);
-        }
-        $commandArray = preg_split('/[-_]/', $command);
-        foreach ($commandArray as &$item) {
-            $item = ucfirst($item);
-        }
-        return implode('', $commandArray);
-    }
+
 }

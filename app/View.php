@@ -30,13 +30,13 @@ class View
     public function __construct()
     {
         //twig directories
-        $cachePath = App::getRequest('root_path') . '/app/runtime/twig/cache';
-        $templatePath = App::getRequest('root_path') . '/app/views/';
+        $cachePath = App::getRootPath() . '/app/runtime/twig/cache';
+        $templatePath = App::getRootPath() . '/app/views/';
         if (!file_exists($cachePath)) {
             mkdir($cachePath, 0777, true);
         }
-
-        if (App::getConfig('app.debug') && App::getConfig('app.clear_twig_cache_on_debug')) {
+        $config = App::getComponent('config');
+        if ($config->get('app.debug') && $config->get('app.clear_twig_cache_on_debug')) {
             //clear cache if set in config
             $help = App::getComponent('fileutils');
             $help->clearDirectory($cachePath);
@@ -48,7 +48,7 @@ class View
             'cache' => $cachePath,
         ]);
         //custom functions
-        $functions = include(App::getRequest('root_path') . '/app/components/twig/functions.php');
+        $functions = include(App::getRootPath() . '/app/components/twig/functions.php');
         foreach ($functions as $functionName => $functionCode) {
             $function = new \Twig_Function($functionName, $functionCode);
             $this->twig->addFunction($function);

@@ -21,12 +21,13 @@ class Cache extends Component
      */
     public static function init()
     {
+        $config = App::getComponent('config');
         $instance = parent::init();
-        $create = App::getConfig('cache.create');
+        $create = $config->get('cache.create');
         $instance->engine = call_user_func($create);
-        $duration = App::getConfig('cache.duration');
+        $duration = $config->get('cache.duration');
         $instance->duration = $duration ? $duration : 3600;
-        $instance->clear = App::getConfig('cache.clear');
+        $instance->clear = $config->get('cache.clear');
         return $instance;
     }
 
