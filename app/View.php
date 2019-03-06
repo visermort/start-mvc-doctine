@@ -32,7 +32,7 @@ class View
     public function __construct()
     {
         //twig directories
-        $cachePath = App::getRootPath() . '/app/runtime/twig/cache';
+        $cachePath = App::getRootPath() . '/runtime/twig/cache';
         $templatePath = App::getRootPath() . '/app/views/';
         if (!file_exists($cachePath)) {
             mkdir($cachePath, 0777, true);
