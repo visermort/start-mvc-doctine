@@ -13,4 +13,9 @@ return [
     'login_url' => '/login',
     'not_access_url' => '/error503',
     'session_user_key' => 'ifi3i58i',
+    'cache' => 'app\classes\cache\FileCache',
+    // 'app\classes\cache\FileCache'
+    // 'app\classes\cache\Apcu'
+    // 'app\classes\cache\MemCached'
+    // 'app\classes\cache\Nocache';
 ];
