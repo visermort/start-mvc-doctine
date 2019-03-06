@@ -53,9 +53,7 @@ class App
 
 
         $config = self::getComponent('config');
-        if ($config->get('app.debug')) {
-            ini_set('display_errors', 1);
-        }
+        ini_set('display_errors', $config->get('app.debug'));
 
         //check if user is logged
         self::getComponent('auth');

@@ -1,4 +1,5 @@
 /vendor
 /app/runtime
 /web/apc.php
+/env.php
 /.idea

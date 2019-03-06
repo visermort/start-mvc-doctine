@@ -4,7 +4,6 @@
  * main
  */
 return [
-    'mode' => 'dev', //'prod''dev'  is not used jet
     'debug' => 1,
     'clear_twig_cache_on_debug' => 1,
     'clear_doctrine_metadata_cache_on_debug' => 1,

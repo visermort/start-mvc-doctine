@@ -29,6 +29,14 @@ class Config extends Component
                 }
             }
         }
+        //local environments
+        $envFile = App::getRootPath() . '/env.php';
+        if (file_exists($envFile)) {
+            $envConfig = include($envFile);
+            foreach ($envConfig as $key => $value) {
+                $instance->config[$key] = $value;
+            }
+        }
         return $instance;
     }
 
