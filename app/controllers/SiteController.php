@@ -4,9 +4,8 @@ namespace app\controllers;
 
 use app\Controller;
 use app\App;
-//use app\models\Task;
-//use app\lib\Paginator;
-
+use app\console\Queue;
+use app\classes\Mail;
 
 /**
  * Class SiteController
@@ -44,7 +43,19 @@ class SiteController extends Controller
         foreach ($queryResult as $task) {
             d($task, $task['user']);
         }
+    }
 
+    //example of sending email by queue
+    public function actionMail()
+    {
+        $mail = new Mail();
+        $mail->setFrom(App::getComponent('config')->get('site.email'));
+        $mail->addAddress('oxygenn@list.ru', 'Andrey');     // Add a recipient
+        $mail->isHTML(true);                                   // Set email format to HTML
+        $mail->Subject = 'Here is the subject';
+        $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
+
+        $queue = new Queue($mail, 'send');
     }
 
 

@@ -14,4 +14,6 @@ return [
     ['GET',           '/task/result', 'task.result.auth'],//need login
     [['GET', 'POST'], '/task/update/{id:\d+}', 'task.update.admin'], //.admin  - need permission admin
 
+    //['GET',           '/mail', 'site.mail'],
+
 ];

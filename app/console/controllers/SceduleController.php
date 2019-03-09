@@ -32,13 +32,16 @@ class SceduleController extends Controller
         //hourlyAt(17)
         //everyMinute()
         $this->scedules[] = Scedule::add('test/test xxx bbb')->everyMinute();
+        $this->scedules[] = Scedule::add('queue/run')->everyMinute();
     }
 
     protected function execute()
     {
         foreach ($this->scedules as $scedule) {
             if ($scedule->isExecutableThisTime()) {
+                echo "Ececuting " . $scedule->action[1] . "\n";
                 App::getInstance()->runConsole($scedule->action);
+                echo "Done\n";
             }
         }
     }

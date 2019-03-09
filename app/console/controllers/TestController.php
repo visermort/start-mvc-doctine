@@ -16,7 +16,7 @@ class TestController extends Controller
     public function actionTest($arg1 = null, $arg2 = null)
     {
         $message = 'testController/actionTest  arg1='.$arg1. ' arg2='.$arg2."\n";
-        $message .=  'is console ' . App::isConsole();
+        $message .=  'is console ' . App::isConsole()."\n";
         echo $message;
 //        $path = App::getRootPath() . '/runtime/test_scedule_' .
 //            preg_replace('/[\s\:\-]/', '_', date('Y-m-d H:i:s', time())) .

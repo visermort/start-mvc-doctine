@@ -12,7 +12,8 @@
         "twig/twig": "^2.0",
         "desarrolla2/cache": "^3.0",
         "doctrine/orm": "^2.5",
-        "doctrine/migrations": "^2.0"
+        "doctrine/migrations": "^2.0",
+        "phpmailer/phpmailer": "^6.0"
     },
     "require-dev": {
         "kint-php/kint": "^3.1"

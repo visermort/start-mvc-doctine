@@ -53,6 +53,14 @@ class Help
         return $count;
     }
 
+    public static function scanDirectory($directory)
+    {
+        if (!file_exists($directory) || !is_dir($directory)) {
+            return 0;
+        }
+        return array_diff(scandir($directory), ['.', '..']);
+    }
+
     /**
      * @param $name
      * @param $title

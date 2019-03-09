@@ -10,7 +10,7 @@ class Scedule
 {
     public $action;
     public $timeOfDay = '00:00';//default once a day at 00:00
-    public $timeOfHour = null;//once a hour at this minute
+    public $timeOfHour = null;//once a hour at this minute if set
     public $everyMinute;
 
     /**
