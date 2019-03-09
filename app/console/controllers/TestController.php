@@ -15,8 +15,14 @@ class TestController extends Controller
      */
     public function actionTest($arg1 = null, $arg2 = null)
     {
-        echo 'testController/actionTest  arg1='.$arg1. ' arg2='.$arg2."\n";
-        echo 'is console ' . App::isConsole();
+        $message = 'testController/actionTest  arg1='.$arg1. ' arg2='.$arg2."\n";
+        $message .=  'is console ' . App::isConsole();
+        echo $message;
+//        $path = App::getRootPath() . '/runtime/test_scedule_' .
+//            preg_replace('/[\s\:\-]/', '_', date('Y-m-d H:i:s', time())) .
+//            '.txt';
+//        file_put_contents($path, $message);
+
     }
     /**
      * test-and-test action description

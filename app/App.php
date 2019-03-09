@@ -198,6 +198,11 @@ class App
         return self::$instance->controller;
     }
 
+    public static function getInstance()
+    {
+        return self::$instance;
+    }
+
 
     /**
      * run action
