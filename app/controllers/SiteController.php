@@ -48,11 +48,13 @@ class SiteController extends Controller
     //example of sending email by queue
     public function actionMail()
     {
+        $config = App::getComponent('config');
+
         $mail = new Mail();
-        $mail->setFrom(App::getComponent('config')->get('site.email'));
-        $mail->addAddress('oxygenn@list.ru', 'Andrey');     // Add a recipient
-        $mail->isHTML(true);                                   // Set email format to HTML
-        $mail->Subject = 'Here is the subject';
+        $mail->setFrom($config->get('site.email'));
+        $mail->addAddress($config->get('app.admin_email'), 'Andrey');
+        $mail->isHTML(true);
+        $mail->Subject = 'Test mail from '.$config->get('site.name');
         $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
 
         $queue = new Queue($mail, 'send');

@@ -14,7 +14,7 @@ class SceduleController extends Controller
     protected $scedules;
 
     /**
-     * Action for "Cron". Put in to at every minute
+     * Action for "Cron". Put 'scedule/run' to run every minute
      */
     public function actionRun()
     {
@@ -39,7 +39,7 @@ class SceduleController extends Controller
     {
         foreach ($this->scedules as $scedule) {
             if ($scedule->isExecutableThisTime()) {
-                echo "Ececuting " . $scedule->action[1] . "\n";
+                echo "Executing " . $scedule->action[1] . "\n";
                 App::getInstance()->runConsole($scedule->action);
                 echo "Done\n";
             }
